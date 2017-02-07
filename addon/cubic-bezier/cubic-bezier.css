@@ -1,0 +1,182 @@
+
+/* codemirror colorview */
+
+.codemirror-bezierview {
+	border : 1px solid #8e8e8e;
+    position: relative;
+	display : inline-block;
+	box-sizing : border-box;
+	margin : 0px 2px;
+	width : 10px;
+	height : 10px;
+	cursor: pointer;
+    background-color: blue;
+}
+
+/* codemirror-cubicbezier */
+
+.codemirror-cubicbezier {
+  position: relative;
+  width: 270px;
+  height: 350px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+.codemirror-cubicbezier > .bezier {
+  position: absolute;
+  width:150px;
+  height:150px;
+  top:100px;
+  left:100px;
+
+}
+
+.codemirror-cubicbezier > .bezier > .bezier-canvas {
+  position: absolute;
+  left:0px;
+  top:0px;
+  right:0px;
+  bottom:0px;
+}
+
+.codemirror-cubicbezier > .bezier > .control {
+  position: absolute;
+  left:0px;
+  right:0px;
+  bottom:0px;
+  top:0px;
+}
+
+.codemirror-cubicbezier > .bezier > .control > .pointer1,
+.codemirror-cubicbezier > .bezier > .control > .pointer2
+{
+  position: absolute;
+  width: 14px;
+  height:14px;
+  margin-left:-7px;
+  margin-top:-7px;
+  -webkit-border-radius:50%;
+  -moz-border-radius:50%;
+  border-radius:50%;
+  cursor: pointer;
+  background-color: #ac48ff;
+  border:1px solid #ac48ff;
+  box-sizing:border-box;
+}
+
+.codemirror-cubicbezier > .bezier > .control > .pointer2 {
+  background-color: #ac48ff;
+}
+
+.codemirror-cubicbezier > .animation {
+  position:absolute;
+  top:0px;
+  left:0px;
+  right:0px;
+  height: 50px;
+  text-align: center;
+}
+
+.codemirror-cubicbezier > .animation > .animation-canvas {
+  position:relative;
+  width:100%;
+  height:100%;
+}
+
+.codemirror-cubicbezier > .item-list {
+  position:absolute;
+  top: 50px;
+  bottom:50px;
+  left:0px;
+  width:100px;
+  padding:10px 4px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+
+.codemirror-cubicbezier > .item-list > .item {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border:1px solid gray;
+  margin: 10px;
+  cursor:pointer;
+}
+
+.codemirror-cubicbezier > .item-list > .item.selected {
+  background-color: #0ab;
+}
+
+.codemirror-cubicbezier > .item-list > .item > .item-canvas {
+  position: absolute;
+  top:5px;
+  left:5px;
+  width:40px;
+  height:40px;
+}
+
+.codemirror-cubicbezier > .predefined {
+  position:absolute;
+  bottom:0px;
+  left:0px;
+  right:0px;
+  height: 50px;
+  text-align: center;
+}
+
+.codemirror-cubicbezier > .predefined > .left:before,
+.codemirror-cubicbezier > .predefined > .right:before
+{
+  content: "";
+  position:absolute;
+  width:20px;
+  height:20px;
+  top:25px;
+  left:25px;
+  margin-top:-10px;
+  margin-left:-10px;
+  -webkit-border-radius:50%;
+  -moz-border-radius:50%;
+  border-radius:50%;
+  background-color: rgba(189, 189, 189, 0.5);
+}
+.codemirror-cubicbezier > .predefined > .left,
+.codemirror-cubicbezier > .predefined > .right
+{
+  position:absolute;
+  top:0px;
+  left:0px;
+  bottom:0px;
+  width:50px;
+  padding:10px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight:bold;
+  line-height:28px;
+  cursor: pointer;
+}
+
+.codemirror-cubicbezier > .predefined > .right {
+  right:0px;
+  left:auto;
+}
+
+.codemirror-cubicbezier > .predefined > .predefined-text {
+  position: absolute;
+  left:50px;
+  right:50px;
+  top:0px;
+  bottom:0px;
+  padding:10px;
+}
+

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/codemirror.css" />
+
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/codemirror.js" ></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/mode/css/css.js" ></script>
+    <link rel="stylesheet" href="../addon/cubic-bezier/cubic-bezier.css" />
+    <script type="text/javascript" src="../addon/cubic-bezier/cubic-bezier-view.js" ></script>
+    <script type="text/javascript" src="../addon/cubic-bezier/cubic-bezier.js" ></script>
+
+</head>
+<body>
+
+
+<script type="text/javascript">
+    var cm = CodeMirror(document.body, {
+        lineNumbers: true, 
+        mode : "css",
+        cubicbezier : {
+            mode : 'edit'
+        }
+    });
+
+    cm.setValue('cubic-bezier(0, 0, 1, 1)');
+</script>
+</body>
+
+</html>
