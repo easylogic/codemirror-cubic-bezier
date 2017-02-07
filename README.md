@@ -26,13 +26,9 @@ cubicbezier {
 }
 ```
 
-# Sample demo - View mode 
-
 # Sample demo - Edit mode 
 
-
-
-# Sample Page 
+<img src='http://i.giphy.com/26xBKjK30sT0d6JwI.gif' />
 
 # Install 
 
