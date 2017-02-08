@@ -1,6 +1,6 @@
 {
   "name": "codemirror-cubic-bezier",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "cubic-bezier for codemirror",
   "main": "index.js",
   "scripts": {
