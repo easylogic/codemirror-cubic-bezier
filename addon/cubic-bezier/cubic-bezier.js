@@ -70,9 +70,9 @@
         };
 
         var $root, $bezier, $canvas, $control, $pointer1, $pointer2;
-        var $animationCanvas, $animation, $itemList , $item1, $item2, $item3, $predefined, $left, $right, $text;
+        var $animationCanvas, $animation, $itemList , $item1, $item2, $item3 , $item1Canvas, $item2Canvas, $item3Canvas, $predefined, $left, $right, $text;
         var currentBezier = [0, 0, 1, 1], currentBezierIndex = 0;
-        var timer, bezierList = [
+        var timer, animationTimer, bezierList = [
             [  0.47, 0, 0.745, 0.715,  'ease-in-sine'],
             [  0.39, 0.575, 0.565, 1,  'ease-out-sine'],
             [  0.445, 0.05, 0.55, 0.95,  'ease-in-out-sine'],
@@ -86,6 +86,8 @@
             [ 0.165, 0.84, 0.44, 1, 'ease-out-quart'],
             [ 0.77, 0, 0.175, 1, 'ease-in-out-quart']
         ];
+
+        var DRAG_AREA = 50;
 
         var bezierObj = {
             "ease" : "cubic-bezier(0.25, 0.1, 0.25, 1)",
@@ -349,10 +351,11 @@
         function drawPoint () {
 
             if (timer) clearTimeout(timer);
+            if (animationTimer) clearTimeout(animationTimer);
 
             timer = setTimeout(function () {
                 animationPoint ();
-            }, 500);
+            }, 100);
         }
 
         function animationPoint () {
@@ -387,7 +390,7 @@
                     return;
                 }
 
-                setTimeout(function () { start(i - 0.05); }, 50);
+                animationTimer = setTimeout(function () { start(i - 0.05); }, 50);
             }
 
             start(1);
@@ -592,8 +595,14 @@
 
         function setPosition1($pointer, e) {
 
+            var bwidth = $bezier.width();
+            var bheight = $bezier.height();
+
             var width = $control.width();
             var height = $control.height();
+
+            var drag_area_w = Math.abs(bwidth - width)/2;
+            var drag_area_h = Math.abs(bheight - height)/2;
 
             var minX = $control.offset().left;
             var maxX = minX + width;
@@ -604,17 +613,17 @@
             var p = pos(e);
 
             var x = p.clientX - minX;
-            if (0 > x) {
-                x = 0;
-            } else if (p.clientX > maxX) {
-                x = maxX - minX;
+            if (-drag_area_w > x ) {
+                x = -drag_area_w;
+            } else if (p.clientX > maxX + drag_area_w) {
+                x = maxX + drag_area_w - minX;
             }
 
             var y = p.clientY - minY;
-            if (0 > y) {
-                y = 0;
-            } else if (p.clientY > maxY) {
-                y = maxY - minY;
+            if (-drag_area_h > y) {
+                y = -drag_area_h;
+            } else if (p.clientY > maxY + drag_area_h) {
+                y = maxY + drag_area_h - minY;
             }
 
             $pointer.css({
@@ -626,9 +635,14 @@
         }
 
         function setPosition2($pointer, e) {
+            var bwidth = $bezier.width();
+            var bheight = $bezier.height();
 
             var width = $control.width();
             var height = $control.height();
+
+            var drag_area_w = Math.abs(bwidth - width)/2;
+            var drag_area_h = Math.abs(bheight - height)/2;
 
             var minX = $control.offset().left;
             var maxX = minX + width;
@@ -639,17 +653,17 @@
             var p = pos(e);
 
             var x = p.clientX - minX;
-            if (0 > x) {
-                x = 0;
-            } else if (p.clientX > maxX) {
-                x = maxX - minX;
+            if (-drag_area_w > x) {
+                x = -drag_area_w;
+            } else if (p.clientX > maxX + drag_area_w) {
+                x = maxX + drag_area_w - minX;
             }
 
             var y = p.clientY - minY;
-            if (0 > y) {
-                y = 0;
-            } else if (p.clientY > maxY) {
-                y = maxY - minY;
+            if (-drag_area_h > y) {
+                y = -drag_area_h;
+            } else if (p.clientY > maxY + drag_area_h) {
+                y = maxY + drag_area_h - minY;
             }
 
             $pointer.css({
@@ -738,7 +752,7 @@
             $predefined = new dom('div', 'predefined');
 
             $left = new dom('div', 'left').html('〈');
-            $right = new dom('div', 'right').html('>');
+            $right = new dom('div', 'right').html('〉');
             $text = new dom('div', 'predefined-text').html('ease-in');
 
 
