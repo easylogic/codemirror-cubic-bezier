@@ -68,10 +68,6 @@
   box-sizing:border-box;
 }
 
-.codemirror-cubicbezier > .bezier > .control > .pointer2 {
-  background-color: #ac48ff;
-}
-
 .codemirror-cubicbezier > .animation {
   position:absolute;
   top:0px;

@@ -593,55 +593,13 @@
             drawPoint()
         }
 
-        function setPosition1($pointer, e) {
-
-            var bwidth = $bezier.width();
-            var bheight = $bezier.height();
+        function setPosition($pointer, e) {
+            var bheight = $root.height()-$pointer.width()*3;
 
             var width = $control.width();
             var height = $control.height();
 
-            var drag_area_w = Math.abs(bwidth - width)/2;
-            var drag_area_h = Math.abs(bheight - height)/2;
-
-            var minX = $control.offset().left;
-            var maxX = minX + width;
-
-            var minY = $control.offset().top;
-            var maxY = minY + height;
-
-            var p = pos(e);
-
-            var x = p.clientX - minX;
-            if (-drag_area_w > x ) {
-                x = -drag_area_w;
-            } else if (p.clientX > maxX + drag_area_w) {
-                x = maxX + drag_area_w - minX;
-            }
-
-            var y = p.clientY - minY;
-            if (-drag_area_h > y) {
-                y = -drag_area_h;
-            } else if (p.clientY > maxY + drag_area_h) {
-                y = maxY + drag_area_h - minY;
-            }
-
-            $pointer.css({
-                left: x + 'px',
-                top : y + 'px'
-            });
-
-            return { x : (x == 0 )? 0 : x / width, y : (y == height ) ? 0 : (height-y) / height };
-        }
-
-        function setPosition2($pointer, e) {
-            var bwidth = $bezier.width();
-            var bheight = $bezier.height();
-
-            var width = $control.width();
-            var height = $control.height();
-
-            var drag_area_w = Math.abs(bwidth - width)/2;
+            var drag_area_w = 0;
             var drag_area_h = Math.abs(bheight - height)/2;
 
             var minX = $control.offset().left;
@@ -676,7 +634,7 @@
 
         function setPointer1(e) {
 
-            var pos = setPosition1($pointer1, e);
+            var pos = setPosition($pointer1, e);
 
             currentBezier[0] = pos.x;
             currentBezier[1] = pos.y;
@@ -687,7 +645,7 @@
         }
 
         function setPointer2(e) {
-            var pos = setPosition2($pointer2, e);
+            var pos = setPosition($pointer2, e);
 
             currentBezier[2] = pos.x;
             currentBezier[3] = pos.y;
@@ -766,10 +724,10 @@
             $bezier.append($canvas);
             $bezier.append($control);
 
-            $root.append($bezier);
             $root.append($predefined);
             $root.append($animation);
             $root.append($itemList);
+            $root.append($bezier);
 
             initBezier();
 
