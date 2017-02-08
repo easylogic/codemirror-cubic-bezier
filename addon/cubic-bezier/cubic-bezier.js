@@ -378,7 +378,7 @@
             function start (i) {
 
                 var pos = func(i);
-                var x = 20 + (width-40) * pos.x;
+                var x = 20 + (width-40) * pos.y;        // y
 
                 context.beginPath();
                 context.arc(x, y, 10, 0, 2*Math.PI);
@@ -617,12 +617,14 @@
                 x = maxX + drag_area_w - minX;
             }
 
-            var y = p.clientY - minY;
-            if (-drag_area_h > y) {
-                y = -drag_area_h;
-            } else if (p.clientY > maxY + drag_area_h) {
-                y = maxY + drag_area_h - minY;
+            var y = p.clientY;
+            if (0 > y) {
+                y = 0;
+            } else if (p.clientY > document.body.clientHeight) {
+                y = document.body.clientHeight;
             }
+
+            y -= minY;
 
             $pointer.css({
                 left: x + 'px',
