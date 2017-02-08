@@ -493,6 +493,31 @@
             addEvent($item1.el, 'click', EventItem1Click);
             addEvent($item2.el, 'click', EventItem2Click);
             addEvent($item3.el, 'click', EventItem3Click);
+
+            addEvent($animationCanvas.el, 'click', EventAnimationCanvasClick);
+        }
+
+        function destroy() {
+            removeEvent($pointer1.el, 'mousedown', EventPointer1MouseDown);
+            removeEvent($pointer2.el, 'mousedown', EventPointer2MouseDown);
+
+            removeEvent($left.el, 'click', EventLeftClick);
+            removeEvent($right.el, 'click', EventRightClick);
+
+            removeEvent(document, 'mouseup', EventDocumentMouseUp);
+            removeEvent(document, 'mousemove', EventDocumentMouseMove);
+
+
+            removeEvent($item1.el, 'click', EventItem1Click);
+            removeEvent($item2.el, 'click', EventItem2Click);
+            removeEvent($item3.el, 'click', EventItem3Click);
+
+            // remove color picker callback
+            cubicbezierCallback = undefined;
+        }
+
+        function EventAnimationCanvasClick() {
+            drawPoint();
         }
 
         function EventItem1Click ()  {
@@ -657,24 +682,7 @@
             cubicbezierCallback(bezier.format(currentBezier));
         }
 
-        function destroy() {
-            removeEvent($pointer1.el, 'mousedown', EventPointer1MouseDown);
-            removeEvent($pointer2.el, 'mousedown', EventPointer2MouseDown);
 
-            removeEvent($left.el, 'click', EventLeftClick);
-            removeEvent($right.el, 'click', EventRightClick);
-
-            removeEvent(document, 'mouseup', EventDocumentMouseUp);
-            removeEvent(document, 'mousemove', EventDocumentMouseMove);
-
-
-            removeEvent($item1.el, 'click', EventItem1Click);
-            removeEvent($item2.el, 'click', EventItem2Click);
-            removeEvent($item3.el, 'click', EventItem3Click);
-
-            // remove color picker callback
-            cubicbezierCallback = undefined;
-        }
 
         function init() {
             $root = new dom('div', 'codemirror-cubicbezier');
@@ -687,7 +695,7 @@
 
             $animation = new dom('div', 'animation');
 
-            $animationCanvas = new dom('canvas', 'animation-canvas', { width: '280px', height : '50px'} );
+            $animationCanvas = new dom('canvas', 'animation-canvas', { width: '270px', height : '50px', 'title' : 'Click and Replay point animation'} );
 
             $animation.append($animationCanvas);
 
