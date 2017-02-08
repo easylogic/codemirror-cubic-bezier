@@ -2,7 +2,6 @@
 /* codemirror colorview */
 
 .codemirror-bezierview {
-	border : 1px solid #8e8e8e;
     position: relative;
 	display : inline-block;
 	box-sizing : border-box;
@@ -10,7 +9,9 @@
 	width : 10px;
 	height : 10px;
 	cursor: pointer;
-    background-color: blue;
+    background-repeat: no-repeat;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAB3SURBVChTY9iefGyO+gasCCjFgCaEhrBLf33x/f6uZ0AGuvRc7Y37i8/8////3JQbQC5CekPwgRsrH/z48Aso9+bah8VmW6HSQBaQDxQFygFVANXB9YCkgeYA5YBmAk2GS0AQSBroCqBbkEXhCN1paAhvsCQfAwDynahhkocJpQAAAABJRU5ErkJggg==);
+
 }
 
 /* codemirror-cubicbezier */
