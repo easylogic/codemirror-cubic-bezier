@@ -24,6 +24,8 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  z-index: 10;
+  background-color: white;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   border-radius: 2px;;

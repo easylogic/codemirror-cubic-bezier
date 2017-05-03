@@ -1,15 +1,15 @@
 (function(mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
-        mod(require("../../lib/codemirror"), require("./foldcode"));
+        mod(require("codemirror"));
     else if (typeof define == "function" && define.amd) // AMD
-        define(["../../lib/codemirror", "./foldcode"], mod);
+        define(["codemirror"], mod);
     else // Plain browser env
         mod(CodeMirror);
 })(function(CodeMirror) {
     "use strict";
 
     var cubicbezier_class = 'codemirror-bezierview';
-    var bezier_regexp = /(cubic-bezier\(\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*\))/gi;
+    var bezier_regexp = /(ease\-in\-out|ease\-in|ease\-out|linear|ease|cubic-bezier\(\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*\))/gi;
 
 
     CodeMirror.defineOption("cubicbezier", false, function (cm, val, old) {
@@ -41,6 +41,20 @@
 
     }
 
+    function onUpdate(cm, evt) {
+        if (!cm.state.cubicbezier.isUpdate) {
+            cm.state.cubicbezier.isUpdate = true;
+            cm.state.cubicbezier.close_bezier_picker();
+            cm.state.cubicbezier.init_bezier_update();
+            cm.state.cubicbezier.style_bezier_update();
+        }
+    }
+
+
+    function onRefresh(cm, evt) {
+        onChange(cm, { origin : 'setValue'});
+    }
+
     function onKeyup(cm) {
         cm.state.cubicbezier.keyup();
     }
@@ -52,9 +66,8 @@
         }
     }
 
-    function onPaste () {
-        // TODO: cm  객체를 어디서 얻어오나?
-        //self.style_bezier_update();
+    function onPaste (cm, evt) {
+        onChange(cm, { origin : 'setValue'});
     }
 
     function onScroll (cm) {
@@ -73,6 +86,16 @@
             t = setTimeout(function () {
                 callback(cm, e);
             }, delay || 300);
+        }
+    }
+
+    function has_class(el, cls) {
+        if (!el.className)
+        {
+            return false;
+        } else {
+            var newClass = ' ' + el.className + ' ';
+            return newClass.indexOf(' ' + cls + ' ') > -1;
         }
     }
 
@@ -105,12 +128,22 @@
         this.cm.on('mousedown', onMousedown);
         this.cm.on('keyup', onKeyup);
         this.cm.on('change', onChange);
+        this.cm.on('update', onUpdate);
+        this.cm.on('refresh', onRefresh);
 
-        this.cm.getWrapperElement().addEventListener('paste', onPaste);
+        // create paste callback
+        this.onPasteCallback = (function (cm, callback) {
+            return  function (evt) {
+                callback.call(this, cm, evt);
+            }
+        })(this.cm, onPaste);
+
+        this.cm.getWrapperElement().addEventListener('paste', this.onPasteCallback);
 
         if (this.is_edit_mode())
         {
-            this.cm.on('scroll', debounce(onScroll, 50));
+            this.onScrollCallback = debounce(onScroll, 50);
+            this.cm.on('scroll', this.onScrollCallback);
         }
 
     }
@@ -125,8 +158,16 @@
 
     codemirror_cubicbezier.prototype.destroy = function () {
         this.cm.off('mousedown', onMousedown);
-        this.cm.off('change', onChange)
-        this.cm.getWrapperElement().removeEventListener('paste', onPaste);
+        this.cm.off('keyup', onKeyup);
+        this.cm.off('change', onChange);
+        this.cm.off('update', onUpdate);
+        this.cm.off('refresh', onRefresh);
+        this.cm.getWrapperElement().removeEventListener('paste', this.onPasteCallback);
+
+        if (this.is_edit_mode())
+        {
+            this.cm.on('scroll', this.onScrollCallback);
+        }
     }
 
     codemirror_cubicbezier.prototype.hasClass = function (el, className) {
@@ -148,6 +189,32 @@
         }
     }
 
+    codemirror_cubicbezier.prototype.popup_bezier_picker = function () {
+        var cursor = this.cm.getCursor();
+        var self = this;
+        var bezierMarker = {
+            lineNo : cursor.line,
+            ch : cursor.ch,
+            isShortCut : true
+        };
+
+        Object.keys(this.markers).forEach(function(key) {
+            var searchKey = "#" + key;
+            if (searchKey.indexOf( "#" + bezierMarker.lineNo + ":") > -1) {
+                var marker = self.markers[key];
+
+                if (marker.ch <= bezierMarker.ch && bezierMarker.ch <= marker.ch + marker.color.length) {
+                    // when cursor has marker
+                    bezierMarker.ch = marker.ch;
+                    bezierMarker.bezier = marker.bezier;
+                }
+
+            }
+        });
+
+        this.open_bezier_picker(bezierMarker);
+    }
+
     codemirror_cubicbezier.prototype.open_bezier_picker = function (el) {
         var lineNo = el.lineNo;
         var ch = el.ch;
@@ -158,9 +225,16 @@
             var self = this;
             var prevbezier = bezier;
             var pos = this.cm.charCoords({line : lineNo, ch : ch });
-            this.cubicbezier.show({ left : pos.left, top : pos.bottom }, bezier, function (newbezier) {
+            this.cubicbezier.show({
+                left : pos.left,
+                top : pos.bottom,
+                isShortCut : el.isShortCut || false,
+                hideDelay : self.opt.hideDelay || 2000
+            }, bezier, function (newbezier) {
                 self.cm.replaceRange(newbezier, { line : lineNo, ch : ch } , { line : lineNo, ch : ch + prevbezier.length }, '*cubicbezier');
                 prevbezier = newbezier;
+            }, function /* hide callback */() {
+                self.cm.focus();
             });
 
         }
@@ -179,10 +253,14 @@
     }
 
 
-    codemirror_cubicbezier.prototype.keyup = function () {
+    codemirror_cubicbezier.prototype.keyup = function (evt) {
 
         if (this.cubicbezier) {
-            this.cubicbezier.hide();
+            if (evt.key == 'Escape') {
+                this.cubicbezier.hide();
+            } else if (this.cubicbezier.isShortCut() == false) {
+                this.cubicbezier.hide();
+            }
         }
     }
 
@@ -209,8 +287,13 @@
 
         for(var i = 0, len = list.length; i < len; i++) {
             var key = this.key(lineNo, list[i].from);
-            delete this.markers[key];
-            list[i].marker.clear();
+
+
+            if (key && has_class(list[i].marker.replacedWith, cubicbezier_class)) {
+                delete this.markers[key];
+                list[i].marker.clear();
+            }
+
         }
     }
 
@@ -280,7 +363,7 @@
     }
 
     codemirror_cubicbezier.prototype.update_element = function (el, bezier) {
-        el.style.backgroundbezier = bezier;
+        //el.style.backgroundbezier = bezier;
     }
 
     codemirror_cubicbezier.prototype.set_mark = function (line, ch, el) {

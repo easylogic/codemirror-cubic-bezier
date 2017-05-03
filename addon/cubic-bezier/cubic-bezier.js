@@ -1,8 +1,8 @@
 (function(mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
-        mod(require("../../lib/codemirror"), require("./foldcode"));
+        mod(require("codemirror"));
     else if (typeof define == "function" && define.amd) // AMD
-        define(["../../lib/codemirror", "./foldcode"], mod);
+        define(["codemirror"], mod);
     else // Plain browser env
         mod(CodeMirror);
 })(function(CodeMirror) {
@@ -24,17 +24,37 @@
                 arr[2] = Math.floor(arr[2] * 100)/100;
                 arr[3] = Math.floor(arr[3] * 100)/100;
 
+                for(var i = 0, len  = bezierList.length; i < len; i++) {
+                    var bezier = bezierList[i];
+
+                    if (bezier[0] == arr[0] && bezier[1] == arr[1] && bezier[2] == arr[2] && bezier[3] == arr[3] && bezier[5] /* is support css timing function name */) {
+                        return bezier[4]; // timing function name
+                    }
+                }
+
                 return "cubic-bezier(" + [arr[0], arr[1], arr[2], arr[3]].join(",") + ")";
             },
             parse : function (str) {
                 if (typeof str == 'string') {
-                    var arr = str.replace("cubic-bezier", "").replace("(", "").replace(")", "").split(",");
 
-                    for (var i = 0, len = arr.length; i < len; i++) {
-                        arr[i] = parseFloat(this.trim(arr[i]));
+                    if (str == 'linear' || str == 'ease' || str == 'ease-in' || str == 'ease-in-out' || str == 'ease-out') {
+                        for(var i = 0 , len = bezierList.length; i < len; i++) {
+                            if (bezierList[i][4] == str) {
+                                return bezierList[i];           //  check timing function for cubic-bezier
+                            }
+                        }
+                    } else {
+
+                        var arr = str.replace("cubic-bezier", "").replace("(", "").replace(")", "").split(",");
+
+                        for (var i = 0, len = arr.length; i < len; i++) {
+                            arr[i] = parseFloat(this.trim(arr[i]));
+                        }
+
+                        return arr;
                     }
 
-                    return arr;
+
                 }
 
                 return str;
@@ -69,10 +89,14 @@
             }
         };
 
-        var $root, $bezier, $canvas, $control, $pointer1, $pointer2;
+        var $body, $root, $bezier, $canvas, $control, $pointer1, $pointer2;
         var $animationCanvas, $animation, $itemList , $item1, $item2, $item3 , $item1Canvas, $item2Canvas, $item3Canvas, $predefined, $left, $right, $text;
         var currentBezier = [0, 0, 1, 1], currentBezierIndex = 0;
         var timer, animationTimer, bezierList = [
+            [ 0, 0, 1, 1, 'linear', true],
+            [ 0.25, 0.1, 0.25, 1, 'ease', true],
+            [ 0.42, 0, 1, 1, 'ease-in', true],
+            [ 0, 0, 0.58, 1, 'ease-out', true],
             [  0.47, 0, 0.745, 0.715,  'ease-in-sine'],
             [  0.39, 0.575, 0.565, 1,  'ease-out-sine'],
             [  0.445, 0.05, 0.55, 0.95,  'ease-in-out-sine'],
@@ -96,24 +120,34 @@
         };
 
         var cubicbezierCallback = function () {};
+        var cubicbezierHideCallback = function () {};
         var counter = 0;
         var cached = {};
         var isCubicBezierShow = false;
+        var isShortCut = false;
+        var hideDelay = 2000;
+
 
         function dom(tag, className, attr) {
-            var el  = document.createElement(tag);
 
-            this.uniqId = counter++;
+            if (typeof tag != 'string') {
+                this.el = tag;
+            } else {
 
-            el.className = className;
+                var el  = document.createElement(tag);
 
-            attr = attr || {};
+                this.uniqId = counter++;
 
-            for(var k in attr) {
-                el.setAttribute(k, attr[k]);
+                el.className = className;
+
+                attr = attr || {};
+
+                for(var k in attr) {
+                    el.setAttribute(k, attr[k]);
+                }
+
+                this.el = el;
             }
-
-            this.el = el;
         }
 
         dom.prototype.attr = function (key, value) {
@@ -514,6 +548,7 @@
 
             // remove color picker callback
             cubicbezierCallback = undefined;
+            cubicbezierHideCallback = undefined;
         }
 
         function EventAnimationCanvasClick() {
@@ -685,7 +720,11 @@
 
 
         function init() {
-            $root = new dom('div', 'codemirror-cubicbezier');
+            $body = new dom(document.body);
+
+            $root = new dom('div', 'codemirror-cubicbezier', {
+                tabIndex : -1
+            });
             $bezier = new dom('div', 'bezier');
 
             $canvas = new dom('canvas', 'bezier-canvas', { width: '150px', height : '150px'} );
@@ -743,22 +782,51 @@
 
         }
 
+        function definePostion (opt) {
+
+            var width = $root.width();
+            var height = $root.height();
+
+            // set left position for color picker
+            var elementScreenLeft = opt.left - $body.el.scrollLeft ;
+            if (width + elementScreenLeft > window.innerWidth) {
+                elementScreenLeft -= (width + elementScreenLeft) - window.innerWidth;
+            }
+            if (elementScreenLeft < 0) { elementScreenLeft = 0; }
+
+            // set top position for color picker
+            var elementScreenTop = opt.top - $body.el.scrollTop ;
+            if (height + elementScreenTop > window.innerHeight) {
+                elementScreenTop -= (height + elementScreenTop) - window.innerHeight;
+            }
+            if (elementScreenTop < 0) { elementScreenTop = 0; }
+
+            // set position
+            $root.css({
+                left : elementScreenLeft + 'px',
+                top : elementScreenTop + 'px'
+            });
+        }
+
         /**
          * public methods
          */
-        function show (pos, transition,  callback) {
+        function show (opt, transition,  callback, hideCallback) {
             destroy();
             initEvent();
             $root.appendTo(document.body);
 
             $root.css({
-                position: 'absolute',
-                left : pos.left + 'px',
-                top : pos.top + 'px'
+                position: 'fixed',  // color picker has fixed position
+                left : '-10000px',
+                top : '-10000px'
             });
 
-            $root.show();
+            $root.show()
+            definePostion(opt);
+
             isCubicBezierShow = true;
+            isShortCut = opt.isShortCut || false;
 
             initBezier(transition);
 
@@ -767,6 +835,34 @@
                 callback(transitionString);
             }
 
+
+            cubicbezierHideCallback = function () {
+                hideCallback.call(null);
+            }
+
+            // define hide delay
+            hideDelay = opt.hideDelay || 2000;
+            if (hideDelay > 0) {
+                setHideDelay(hideDelay);
+            }
+
+
+        }
+
+        var timerCloseCubicBezier;
+        function setHideDelay (delayTime) {
+            delayTime = delayTime || 0;
+            removeEvent($root.el, 'mouseenter');
+            removeEvent($root.el, 'mouseleave');
+
+            addEvent($root.el, 'mouseenter', function () {
+                clearTimeout(timerCloseCubicBezier);
+            });
+
+            addEvent($root.el, 'mouseleave', function () {
+                clearTimeout(timerCloseCubicBezier);
+                timerCloseCubicBezier = setTimeout(hide, delayTime);
+            });
         }
 
         function hide () {
@@ -782,6 +878,10 @@
         init();
 
         return {
+            isShortCut : function () {
+                return isShortCut;
+            },
+            $root: $root,
             show: show,
             hide: hide
         }

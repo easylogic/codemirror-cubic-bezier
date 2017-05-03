@@ -13,17 +13,32 @@
 </head>
 <body style="height:100vh;">
 
+<textarea id="sample_text_area">
+    ease
+    ease-in
+    ease-out
+    linear
+    cubic-bezier(0, 0, 1, 1)
+</textarea>
+
 
 <script type="text/javascript">
-    var cm = CodeMirror(document.body, {
-        lineNumbers: true, 
+    var cm = CodeMirror.fromTextArea(document.getElementById("sample_text_area"), {
+        lineNumbers: true,
         mode : "css",
+        extraKeys : {
+            'Ctrl-K' : function (cm, event) {
+                cm.state.cubicbezier.popup_bezier_picker();
+            }
+        },
         cubicbezier : {
             mode : 'edit'
         }
     });
 
-    cm.setValue('cubic-bezier(0, 0, 1, 1)');
+    setTimeout(function(){
+        cm.refresh();
+    }, 100);
 </script>
 </body>
 
