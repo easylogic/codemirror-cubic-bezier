@@ -7,7 +7,7 @@ CodeMirror Cubic-Bezier Addon like Chrome devtool style
 ```
 <link rel="stylesheet" href="addon/cubic-bezier/cubic-bezier.css/>
 <script src="addon/cubic-bezier/cubic-bezier-view.js"></script>
-<script src="addon/cubic-bezier/cubic-bezier.js"></script>
+<script src="addon/cubic-bezier/cubic-bezier.js"></script> 
 ```
 
 ## Set option - View mode 
