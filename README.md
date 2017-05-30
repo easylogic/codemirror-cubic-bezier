@@ -42,6 +42,6 @@ npm install codemirror-cubic-bezier
 
 ```
 bower install codemirror-cubic-bezier 
-```
+``` 
 
 # License : MIT 
