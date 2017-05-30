@@ -1,6 +1,6 @@
 # CodeMirror Cubic-Bezier Addon 
 
-CodeMirror Cubic-Bezier Addon like Chrome devtool style  
+CodeMirror Cubic-Bezier Addon like Chrome devtool style   
 
 # How to use 
 
